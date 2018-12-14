@@ -1,23 +1,3 @@
-const config = {
-  type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: {
-        y: 300
-      },
-      debug: false,
-    }
-  },
-  scene: {
-    preload,
-    create,
-    update,
-  }
-};
-
 let player;
 let stars;
 let bombs;
@@ -27,7 +7,6 @@ let score = 0;
 let gameOver = false;
 let scoreText;
 
-const game = new Phaser.Game(config);
 
 function preload() {
   this.load.image('sky', 'assets/sky.png');
@@ -104,6 +83,27 @@ function create() {
     gameOver = true;
   }
 
+  function collectStar(player, star) {
+    star.disableBody(true, true);
+
+    score += 10;
+    scoreText.setText(`Scrore: ${score}`);
+
+    if (stars.countctive(true) === 0) {
+      stars.children.iterate((child) => {
+        child.enableBody(true, child.x, 0, 0, true, true);
+      });
+
+      const x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+      const bomb = bombs.create(x, 16, 'bomb');
+      bomb.setBounce(1);
+      bomb.setCOllideWorldBounds(true);
+      bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+      bomb.allowGravity = false;
+    }
+  }
+
 
   scoreText = this.add.text(16, 16, 'score: 0', {
     fontSize: '32px',
@@ -143,23 +143,23 @@ function update() {
   }
 }
 
-function collectStar(player, star) {
-  star.disableBody(true, true);
-
-  score += 10;
-  scoreText.setText(`Scrore: ${score}`);
-
-  if (stars.countctive(true) === 0) {
-    stars.children.iterate((child) => {
-      child.enableBody(true, child.x, 0, 0, true, true);
-    });
-
-    const x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-    const bomb = bomb.create(x, 16, 'bomb');
-    bomb.setBounce(1);
-    bomb.setCOllideWorldBounds(true);
-    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-    bomb.allowGravity = false;
-  }
-}
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: {
+        y: 300,
+      },
+      debug: false,
+    },
+  },
+  scene: {
+    preload,
+    create,
+    update,
+  },
+};
+const game = new Phaser.Game(config);
