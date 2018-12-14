@@ -7,6 +7,37 @@ let score = 0;
 let gameOver = false;
 let scoreText;
 
+function hitBomb(player, bomb) {
+  this.physics.pause();
+
+  player.setTint(0xff0000);
+
+  player.anims.play('turn');
+
+  gameOver = true;
+}
+
+function collectStar(player, star) {
+  star.disableBody(true, true);
+
+  score += 10;
+  scoreText.setText(`Score: ${score}`);
+
+  if (stars.countActive(true) === 0) {
+    stars.children.iterate((child) => {
+      child.enableBody(true, child.x, 0, 0, true, true);
+    });
+
+    const x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
+    const bomb = bombs.create(x, 16, 'bomb');
+    bomb.setBounce(1);
+    bomb.setCOllideWorldBounds(true);
+    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+    bomb.allowGravity = false;
+  }
+}
+
 
 function preload() {
   this.load.image('sky', 'assets/sky.png');
@@ -32,14 +63,14 @@ function create() {
 
   player = this.physics.add.sprite(100, 450, 'dude');
 
-  player.setBound(0.2);
-  player.setCOllideWorldBounds(true);
+  player.setBounce(0.2);
+  player.setCollideWorldBounds(true);
 
-  this.anim.create({
+  this.anims.create({
     key: 'left',
     frames: this.anims.generateFrameNumbers('dude', {
       start: 0,
-      end: 3
+      end: 3,
     }),
     frameRate: 10,
     repeat: -1,
@@ -49,21 +80,30 @@ function create() {
     key: 'turn',
     frames: [{
       key: 'dude',
-      frame: 4
+      frame: 4,
+    }],
+    frameRate: 20,
+  });
+
+  this.anims.create({
+    key: 'turn',
+    frames: [{
+      key: 'dude',
+      frame: 4,
     }],
     frameRate: 20,
   });
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  stars = this.physics.add.grou({
+  stars = this.physics.add.group({
     key: 'star',
     repeat: 11,
     setXY: {
       x: 1,
       y: 0,
-      stepX: 70
-    }
+      stepX: 70,
+    },
   });
 
   stars.children.iterate((child) => {
@@ -73,39 +113,7 @@ function create() {
   bombs = this.physics.add.group();
 
 
-  function hitBomb(player, bomb) {
-    this.physics.pause();
-
-    player.setTint(0xff0000);
-
-    player.anims.play('turn');
-
-    gameOver = true;
-  }
-
-  function collectStar(player, star) {
-    star.disableBody(true, true);
-
-    score += 10;
-    scoreText.setText(`Scrore: ${score}`);
-
-    if (stars.countctive(true) === 0) {
-      stars.children.iterate((child) => {
-        child.enableBody(true, child.x, 0, 0, true, true);
-      });
-
-      const x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-      const bomb = bombs.create(x, 16, 'bomb');
-      bomb.setBounce(1);
-      bomb.setCOllideWorldBounds(true);
-      bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-      bomb.allowGravity = false;
-    }
-  }
-
-
-  scoreText = this.add.text(16, 16, 'score: 0', {
+  scoreText = this.add.text(16, 16, 'Score: 0', {
     fontSize: '32px',
     fill: '#000',
   });
